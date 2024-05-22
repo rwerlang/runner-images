@@ -1,0 +1,51 @@
+# This template generates an Azure Pipeline Runner image and deploys it to an Azure Virtual Machine Scale Set
+
+parameters:
+  - name: azure_subscription
+    type: string
+
+  - name: agent_pool
+    type: object
+    default:
+      name: ubuntu-latest
+
+  - name: image_type
+    type: string
+
+  - name: image_template_name
+    type: string
+
+  - name: image_readme_name
+    type: string
+
+  - name: keyvault_name
+    type: string
+
+  - name: keyvault_secret_name
+    type: string
+
+  - name: variable_group_name
+    type: string
+    default: 'Image Generation Variables'
+
+  - name: repository_ref
+    type: string
+    default: 'self'
+
+stages:
+- stage: generate_image
+  displayName: generate ${{ parameters.image_type }} image
+  pool: ${{ parameters.agent_pool }}
+  jobs:
+  - template: image-generation.yml
+    parameters:
+      azureSubscription: ${{ parameters.azure_subscription }}
+      image_type: ${{ parameters.image_type }}
+      image_template_name: ${{ parameters.image_template_name }}
+      image_readme_name: ${{ parameters.image_readme_name }}
+      agent_pool: ${{ parameters.agent_pool }}
+      variable_group_name: ${{ parameters.variable_group_name }}
+      create_release: false
+      repository_ref: ${{ parameters.repository_ref }}
+      keyvault_name: ${{ parameters.keyvault_name }}
+      keyvault_secret_name: ${{ parameters.keyvault_secret_name }}
