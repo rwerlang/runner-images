@@ -133,6 +133,6 @@ if ($vmss.Length -eq 0) {
 
 CheckCommandResult
 
-Write-Host "Add custom script extension ..."
-az vmss extension set --vmss-name $VmssName --resource-group $ResourceGroupName $customScriptParameters
-CheckCommandResult
+# Write-Host "Add custom script extension ..."
+# az vmss extension set --vmss-name $VmssName --resource-group $ResourceGroupName $customScriptParameters
+# CheckCommandResult
