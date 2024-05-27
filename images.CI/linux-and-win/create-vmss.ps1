@@ -26,14 +26,6 @@ function CheckCommandResult {
 }
 
 
-
-
-Write-Host "Verify if VMSS '$VmssName' already exists ..."
-$vmss = (az vmss list --resource-group $ResourceGroupName --query "[?name=='$VmssName'].{name:name}") | ConvertFrom-Json
-CheckCommandResult
-
-
-
 $conditionalParameters = @()
 $customScriptParameters = @()
 $tempPath = $env:AGENT_TEMPDIRECTORY
@@ -102,41 +94,29 @@ Write-Host "Disk size: $DiskSizeGb"
 Write-Host "Disk type: $StorageType"
 Write-Host ""
 
-if ($vmss.Length -eq 0) {
-    Write-Host "Resource doesn't exit. Creating ..."
+az vmss create --name $VmssName `
+    --resource-group $ResourceGroupName `
+    --image $Image `
+    --vm-sku $VmSku `
+    --instance-count 0 `
+    --storage-sku $StorageType `
+    --os-disk-size-gb $diskSizeGb `
+    --encryption-at-host `
+    --admin-username $AdminUserName `
+    --assign-identity "[system]" `
+    --disable-overprovision `
+    --enable-auto-update false `
+    --subnet $SubnetId `
+    --upgrade-policy-mode manual `
+    --single-placement-group false `
+    --platform-fault-domain-count 1 `
+    --orchestration-mode Uniform `
+    --only-show-errors `
+    $conditionalParameters
 
-    az vmss create --name $VmssName `
-        --resource-group $ResourceGroupName `
-        --image $Image `
-        --vm-sku $VmSku `
-        --instance-count 0 `
-        --storage-sku $StorageType `
-        --os-disk-size-gb $diskSizeGb `
-        --encryption-at-host `
-        --admin-username $AdminUserName `
-        --assign-identity "[system]" `
-        --disable-overprovision `
-        --enable-auto-update false `
-        --subnet $SubnetId `
-        --upgrade-policy-mode manual `
-        --single-placement-group false `
-        --platform-fault-domain-count 1 `
-        --orchestration-mode Uniform `
-        --only-show-errors `
-        $conditionalParameters
-
-    Write-Host ""
-
-} else {
-    Write-Host "Resource already exists. Updating ..."
-
-    az vmss update --name $VmssName `
-        --resource-group $ResourceGroupName `
-        --set virtualMachineProfile.storageProfile.imageReference.id=$Image
-}
-
+Write-Host ""
 CheckCommandResult
 
-# Write-Host "Add custom script extension ..."
-# az vmss extension set --vmss-name $VmssName --resource-group $ResourceGroupName $customScriptParameters
-# CheckCommandResult
+Write-Host "Add custom script extension ..."
+az vmss extension set --vmss-name $VmssName --resource-group $ResourceGroupName $customScriptParameters
+CheckCommandResult

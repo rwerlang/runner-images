@@ -12,27 +12,11 @@ parameters:
   - name: vmss_name
     type: string
 
-  - name: vmss_sku
-    type: string
-    default: Standard_D2s_v3
-  
-  - name: vmss_subnetid
-    type: string
-    default: /subscriptions/$(azure_subscription)/resourceGroups/$(build_agent_vnet_resource_group)/providers/Microsoft.Network/virtualNetworks/$(build_agent_vnet_name)/subnets/$(build_agent_subnet_name)
-
   - name: image_ref
     type: string
 
   - name: image_type
     type: string
-
-  - name: diskSizeGb
-    type: number
-    default: 0
-
-  - name: storageType
-    type: string
-    default: StandardSSD_LRS
 
   - name: variable_group_name
     type: string
@@ -50,29 +34,19 @@ jobs:
 
   steps:
   - checkout: ${{ parameters.repository_ref }}
-    fetchDepth: 1
-    clean: true
+    fetchDepth: 0
     fetchTags: false
 
   - task: AzureCLI@2
-    displayName: deploy vmss
+    displayName: update vmss
     inputs:
       azureSubscription: ${{ parameters.azure_service_connection_name }}
       scriptType: 'pscore'
       failOnStandardError: true
       scriptLocation: scriptPath
-      scriptPath: ./images.CI/linux-and-win/deploy-vmss.ps1
+      scriptPath: ./images.CI/linux-and-win/update-vmss.ps1
       arguments: >
         -VmssName ${{ parameters.vmss_name }}
         -ResourceGroupName $(azure_resource_group)
         -Image ${{ parameters.image_ref }}
-        -SubnetId ${{ parameters.vmss_subnetid }}
-        -VmSku ${{ parameters.vmss_sku }}
         -ImageType ${{ parameters.image_type }}
-        -AdminUserName $(azure_vmss_adminuser)
-        -KeyVault $(keyvault_name)
-        -AdminSecretName $(keyvault_vmss_admin_secret_name)
-        -DiskSizeGb ${{ parameters.diskSizeGb }}
-        -StorageType ${{ parameters.storageType }}
-        -AzureSshKey $(azure_sshkey_name)
-        -AzureSshKeyResourceGroup $(azure_sshkey_resource_group)
