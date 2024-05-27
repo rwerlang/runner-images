@@ -29,11 +29,8 @@ function CheckCommandResult {
 
 
 Write-Host "Verify if VMSS '$VmssName' already exists ..."
-$vmss = (az vmss list --resource-group $ResourceGroupName --query "[?name=='$VmssName']") | ConvertFrom-Json -Depth 20
+$vmss = (az vmss list --resource-group $ResourceGroupName --query "[?name=='$VmssName'].{name:name}") | ConvertFrom-Json
 CheckCommandResult
-
-$vmss
-
 
 
 
@@ -89,11 +86,11 @@ if ($ImageType.StartsWith("windows")) {
 
     $conditionalParameters += "--authentication-type=ssh"
 
-    # $commandToExecute = "sudo su -c \\\`"find /opt/post-generation -mindepth 1 -maxdepth 1 -type f -name '*.sh' -exec bash {} \\;\\\`""
-    # $customScriptParameters += "--name=CustomScript"
-    # $customScriptParameters += "--publisher=Microsoft.Azure.Extensions"
-    # $customScriptParameters += "--version=2.0"
-    # $customScriptParameters += "--settings=`"{\`"commandToExecute\`":\`"$commandToExecute\`" }`""
+    $commandToExecute = "sudo su -c \\\`"find /opt/post-generation -mindepth 1 -maxdepth 1 -type f -name '*.sh' -exec bash {} \\;\\\`""
+    $customScriptParameters += "--name=CustomScript"
+    $customScriptParameters += "--publisher=Microsoft.Azure.Extensions"
+    $customScriptParameters += "--version=2.0"
+    $customScriptParameters += "--settings=`"{\`"commandToExecute\`":\`"$commandToExecute\`" }`""
 }
 
 Write-Host "Deploy Azure VMSS $VmssName ..."
@@ -105,41 +102,41 @@ Write-Host "Disk size: $DiskSizeGb"
 Write-Host "Disk type: $StorageType"
 Write-Host ""
 
-# if ($vmss.Length -eq 0) {
-#     Write-Host "Resource doesn't exit. Creating ..."
+if ($vmss.Length -eq 0) {
+    Write-Host "Resource doesn't exit. Creating ..."
 
-#     az vmss create --name $VmssName `
-#         --resource-group $ResourceGroupName `
-#         --image $Image `
-#         --vm-sku $VmSku `
-#         --instance-count 0 `
-#         --storage-sku $StorageType `
-#         --os-disk-size-gb $diskSizeGb `
-#         --encryption-at-host `
-#         --admin-username $AdminUserName `
-#         --assign-identity "[system]" `
-#         --disable-overprovision `
-#         --enable-auto-update false `
-#         --subnet $SubnetId `
-#         --upgrade-policy-mode manual `
-#         --single-placement-group false `
-#         --platform-fault-domain-count 1 `
-#         --orchestration-mode Uniform `
-#         --only-show-errors `
-#         $conditionalParameters
+    az vmss create --name $VmssName `
+        --resource-group $ResourceGroupName `
+        --image $Image `
+        --vm-sku $VmSku `
+        --instance-count 0 `
+        --storage-sku $StorageType `
+        --os-disk-size-gb $diskSizeGb `
+        --encryption-at-host `
+        --admin-username $AdminUserName `
+        --assign-identity "[system]" `
+        --disable-overprovision `
+        --enable-auto-update false `
+        --subnet $SubnetId `
+        --upgrade-policy-mode manual `
+        --single-placement-group false `
+        --platform-fault-domain-count 1 `
+        --orchestration-mode Uniform `
+        --only-show-errors `
+        $conditionalParameters
 
-#     Write-Host ""
+    Write-Host ""
 
-# } else {
-#     Write-Host "Resource already exists. Updating ..."
+} else {
+    Write-Host "Resource already exists. Updating ..."
 
-#     az vmss update --name $VmssName `
-#         --resource-group $ResourceGroupName `
-#         --set virtualMachineProfile.storageProfile.imageReference.id=$Image
-# }
+    az vmss update --name $VmssName `
+        --resource-group $ResourceGroupName `
+        --set virtualMachineProfile.storageProfile.imageReference.id=$Image
+}
 
+CheckCommandResult
+
+# Write-Host "Add custom script extension ..."
+# az vmss extension set --vmss-name $VmssName --resource-group $ResourceGroupName $customScriptParameters
 # CheckCommandResult
-
-# # Write-Host "Add custom script extension ..."
-# # az vmss extension set --vmss-name $VmssName --resource-group $ResourceGroupName $customScriptParameters
-# # CheckCommandResult
