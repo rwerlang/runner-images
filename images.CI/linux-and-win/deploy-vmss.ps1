@@ -33,6 +33,7 @@ $tempPath = $env:AGENT_TEMPDIRECTORY
 if (!$tempPath) { $tempPath = $env:TEMP }
 if (!$tempPath) { $tempPath = "./" }
 
+$IsWindows
 if ($IsWindows) {
     $conditionalParameters += "--load-balancer='`"`"'"
 } else {
@@ -100,41 +101,41 @@ CheckCommandResult
 
 $vmss
 
-if ($vmss.Length -eq 0) {
-    Write-Host "Resource doesn't exit. Creating ..."
+# if ($vmss.Length -eq 0) {
+#     Write-Host "Resource doesn't exit. Creating ..."
 
-    az vmss create --name $VmssName `
-        --resource-group $ResourceGroupName `
-        --image $Image `
-        --vm-sku $VmSku `
-        --instance-count 0 `
-        --storage-sku $StorageType `
-        --os-disk-size-gb $diskSizeGb `
-        --encryption-at-host `
-        --admin-username $AdminUserName `
-        --assign-identity "[system]" `
-        --disable-overprovision `
-        --enable-auto-update false `
-        --subnet $SubnetId `
-        --upgrade-policy-mode manual `
-        --single-placement-group false `
-        --platform-fault-domain-count 1 `
-        --orchestration-mode Uniform `
-        --only-show-errors `
-        $conditionalParameters
+#     az vmss create --name $VmssName `
+#         --resource-group $ResourceGroupName `
+#         --image $Image `
+#         --vm-sku $VmSku `
+#         --instance-count 0 `
+#         --storage-sku $StorageType `
+#         --os-disk-size-gb $diskSizeGb `
+#         --encryption-at-host `
+#         --admin-username $AdminUserName `
+#         --assign-identity "[system]" `
+#         --disable-overprovision `
+#         --enable-auto-update false `
+#         --subnet $SubnetId `
+#         --upgrade-policy-mode manual `
+#         --single-placement-group false `
+#         --platform-fault-domain-count 1 `
+#         --orchestration-mode Uniform `
+#         --only-show-errors `
+#         $conditionalParameters
 
-    Write-Host ""
+#     Write-Host ""
 
-} else {
-    Write-Host "Resource already exists. Updating ..."
+# } else {
+#     Write-Host "Resource already exists. Updating ..."
 
-    az vmss update --name $VmssName `
-        --resource-group $ResourceGroupName `
-        --set virtualMachineProfile.storageProfile.imageReference.id=$Image
-}
+#     az vmss update --name $VmssName `
+#         --resource-group $ResourceGroupName `
+#         --set virtualMachineProfile.storageProfile.imageReference.id=$Image
+# }
 
-CheckCommandResult
-
-# Write-Host "Add custom script extension ..."
-# az vmss extension set --vmss-name $VmssName --resource-group $ResourceGroupName $customScriptParameters
 # CheckCommandResult
+
+# # Write-Host "Add custom script extension ..."
+# # az vmss extension set --vmss-name $VmssName --resource-group $ResourceGroupName $customScriptParameters
+# # CheckCommandResult
