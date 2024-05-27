@@ -20,8 +20,9 @@ $ErrorActionPreference = "Stop"
 
 function CheckCommandResult {
     if ($LASTEXITCODE -ne 0) {
-        throw "External command returned an error!"
-    }    
+        Write-Error "External command returned an error!"
+        exit 1
+    }
 }
 
 
@@ -85,6 +86,7 @@ if ($ImageType.StartsWith("windows")) {
 }
 
 Write-Host "Deploy Azure VMSS $VmssName ..."
+Write-Host "Resource group: $ResourceGroupName"
 Write-Host "VM sku: $VmSku"
 Write-Host "OS type: $ImageType"
 Write-Host "Image: $Image"
@@ -94,6 +96,7 @@ Write-Host ""
 
 Write-Host "Verify if VMSS '$VmssName' already exists ..."
 $vmss = $(az vmss list --resource-group $ResourceGroupName --query "[?name=='$VmssName']") | ConvertFrom-Json -Depth 20
+$vmss
 
 if ($vmss.Length -eq 0) {
     Write-Host "Resource doesn't exit. Creating ..."
