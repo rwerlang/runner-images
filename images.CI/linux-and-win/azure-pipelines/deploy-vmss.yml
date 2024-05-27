@@ -50,7 +50,8 @@ jobs:
 
   steps:
   - checkout: ${{ parameters.repository_ref }}
-    fetchDepth: 0
+    fetchDepth: 1
+    clean: true
     fetchTags: false
 
   - task: AzureCLI@2
