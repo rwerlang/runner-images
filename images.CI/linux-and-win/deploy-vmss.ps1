@@ -78,11 +78,11 @@ if ($ImageType.StartsWith("windows")) {
 
     $conditionalParameters += "--authentication-type=ssh"
 
-    $commandToExecute = "sudo su -c \\\`"find /opt/post-generation -mindepth 1 -maxdepth 1 -type f -name '*.sh' -exec bash {} \\;\\\`""
-    $customScriptParameters += "--name=CustomScript"
-    $customScriptParameters += "--publisher=Microsoft.Azure.Extensions"
-    $customScriptParameters += "--version=2.0"
-    $customScriptParameters += "--settings=`"{\`"commandToExecute\`":\`"$commandToExecute\`" }`""
+    # $commandToExecute = "sudo su -c \\\`"find /opt/post-generation -mindepth 1 -maxdepth 1 -type f -name '*.sh' -exec bash {} \\;\\\`""
+    # $customScriptParameters += "--name=CustomScript"
+    # $customScriptParameters += "--publisher=Microsoft.Azure.Extensions"
+    # $customScriptParameters += "--version=2.0"
+    # $customScriptParameters += "--settings=`"{\`"commandToExecute\`":\`"$commandToExecute\`" }`""
 }
 
 Write-Host "Deploy Azure VMSS $VmssName ..."
@@ -95,7 +95,9 @@ Write-Host "Disk type: $StorageType"
 Write-Host ""
 
 Write-Host "Verify if VMSS '$VmssName' already exists ..."
-$vmss = $(az vmss list --resource-group $ResourceGroupName --query "[?name=='$VmssName']") | ConvertFrom-Json -Depth 20
+$vmss = (az vmss list --resource-group $ResourceGroupName --query "[?name=='$VmssName']") | ConvertFrom-Json -Depth 20
+CheckCommandResult
+
 $vmss
 
 if ($vmss.Length -eq 0) {
