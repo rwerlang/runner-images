@@ -26,6 +26,17 @@ function CheckCommandResult {
 }
 
 
+
+
+Write-Host "Verify if VMSS '$VmssName' already exists ..."
+$vmss = (az vmss list --resource-group $ResourceGroupName --query "[?name=='$VmssName']") | ConvertFrom-Json -Depth 20
+CheckCommandResult
+
+$vmss
+
+
+
+
 $conditionalParameters = @()
 $customScriptParameters = @()
 $tempPath = $env:AGENT_TEMPDIRECTORY
@@ -33,7 +44,6 @@ $tempPath = $env:AGENT_TEMPDIRECTORY
 if (!$tempPath) { $tempPath = $env:TEMP }
 if (!$tempPath) { $tempPath = "./" }
 
-$IsWindows
 if ($IsWindows) {
     $conditionalParameters += "--load-balancer='`"`"'"
 } else {
@@ -94,12 +104,6 @@ Write-Host "Image: $Image"
 Write-Host "Disk size: $DiskSizeGb"
 Write-Host "Disk type: $StorageType"
 Write-Host ""
-
-Write-Host "Verify if VMSS '$VmssName' already exists ..."
-$vmss = (az vmss list --resource-group $ResourceGroupName --query "[?name=='$VmssName']") | ConvertFrom-Json -Depth 20
-CheckCommandResult
-
-$vmss
 
 # if ($vmss.Length -eq 0) {
 #     Write-Host "Resource doesn't exit. Creating ..."
