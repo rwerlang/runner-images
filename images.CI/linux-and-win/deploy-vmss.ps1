@@ -57,6 +57,7 @@ if ($ImageType.StartsWith("windows")) {
         Write-Host "Retrieving ssh key from Azure ssh key ..."
 
         $SshPublicKey = $(az sshkey show --name $AzureSshKey --resource-group $AzureSshKeyResourceGroup --query publicKey -o tsv)
+        CheckCommandResult
     }
 
     $conditionalParameters += "--authentication-type=ssh"
@@ -68,6 +69,14 @@ if ($ImageType.StartsWith("windows")) {
     $customScriptParameters += "--version=2.0"
     $customScriptParameters += "--settings=`"{\`"commandToExecute\`":\`"$commandToExecute\`" }`""
 }
+
+Write-Host "Conditional parameters:"
+Write-Host $conditionalParameters
+
+Write-Host ""
+Write-Host "Custom script parameters:"
+Write-Host $customScriptParameters
+Write-Host ""
 
 Write-Host "Deploy Azure VMSS $VmssName ..."
 Write-Host "VM sku: $VmSku"
