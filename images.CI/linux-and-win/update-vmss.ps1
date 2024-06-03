@@ -20,9 +20,9 @@ function CheckCommandResult {
 
 Write-Host "Update VMSS '$VmssName' ..."
 
-# az vmss update --name $VmssName `
-#     --resource-group $ResourceGroupName `
-#     --set virtualMachineProfile.storageProfile.imageReference.id=$Image
+az vmss update --name $VmssName `
+    --resource-group $ResourceGroupName `
+    --set virtualMachineProfile.storageProfile.imageReference.id=$Image
 
 # CheckCommandResult
 
