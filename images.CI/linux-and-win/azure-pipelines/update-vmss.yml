@@ -73,10 +73,9 @@ jobs:
           
           if ($list) {
             Write-Host "Images to delete: "
+            $list = $list -join " "
             $list
 
             Write-Host "Removing old images ..."
-
-            $list = $list -join " "
             az image delete --ids $list | Out-Null
           }
