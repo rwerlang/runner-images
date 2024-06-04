@@ -58,6 +58,7 @@ jobs:
   - ${{ if parameters.delete_old_images }}:
     - task: AzureCLI@2
       displayName: delete old vm images
+      condition: always()
       inputs:
         azureSubscription: ${{ parameters.azure_service_connection_name }}
         scriptType: 'pscore'
