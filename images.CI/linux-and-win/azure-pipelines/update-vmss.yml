@@ -58,7 +58,6 @@ jobs:
   - ${{ if parameters.delete_old_images }}:
     - task: AzureCLI@2
       displayName: delete old vm images
-      condition: always()
       inputs:
         azureSubscription: ${{ parameters.azure_service_connection_name }}
         scriptType: 'pscore'
@@ -74,9 +73,29 @@ jobs:
           
           if ($list) {
             Write-Host "Images to delete: "
-            $list = $list -join " "
             $list
 
             Write-Host "Removing old images ..."
-            az image delete --ids $list | Out-Null
+            foreach ($img in $list) {
+              try {
+                az image delete --ids $img
+              } catch {
+                Write-Host "Error deleting image $img"
+              }
+            }
           }
+
+  - task: AzureCLI@2
+    displayName: upgrade VM instances
+    inputs:
+      azureSubscription: ${{ parameters.azure_service_connection_name }}
+      scriptType: 'pscore'
+      failOnStandardError: true
+      scriptLocation: inlineScript
+      inlineScript: >
+        az vmss update-instances 
+        --instance-ids "*" 
+        --name ${{ parameters.vmss_name }} 
+        --resource-group $(azure_resource_group) 
+        --no-wait
+        

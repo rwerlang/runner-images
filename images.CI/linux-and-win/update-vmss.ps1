@@ -3,8 +3,7 @@ param (
     [Parameter(Mandatory)][string] $VmssName,
     [Parameter(Mandatory)][string] $ResourceGroupName,
     [Parameter(Mandatory)][string] $Image,
-    [string] $ImageType = "ubuntu",
-    [switch][bool] $DisableUpgrade = $false
+    [string] $ImageType = "ubuntu"
 )
 
 
@@ -49,10 +48,3 @@ if ($ImageType.StartsWith("windows")) {
 Write-Host "Add custom script extension ..."
 az vmss extension set --vmss-name $VmssName --resource-group $ResourceGroupName $customScriptParameters
 CheckCommandResult
-
-if (!$DisableUpgrade) {
-    Write-Host "Start upgrade VM instances to latest model ..."
-
-    az vmss update-instances --instance-ids "*" --name $VmssName --resource-group $ResourceGroupName --no-wait
-    CheckCommandResult
-}
