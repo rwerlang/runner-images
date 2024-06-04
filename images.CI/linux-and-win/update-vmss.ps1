@@ -52,7 +52,7 @@ CheckCommandResult
 
 if (!$DisableUpgrade) {
     Write-Host "Start upgrade VM instances to latest model ..."
-    
-    az vmss update-instances --instance-ids * --name $VmssName --resource-group $ResourceGroupName --no-wait
+
+    az vmss update-instances --instance-ids "*" --name $VmssName --resource-group $ResourceGroupName --no-wait
     CheckCommandResult
 }
