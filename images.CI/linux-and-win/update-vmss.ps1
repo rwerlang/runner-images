@@ -24,27 +24,39 @@ az vmss update --name $VmssName `
     --resource-group $ResourceGroupName `
     --set virtualMachineProfile.storageProfile.imageReference.id=$Image
 
-# CheckCommandResult
+CheckCommandResult
 
-$customScriptParameters = @()
+Write-Host "Add custom script extension ..."
 
 if ($ImageType.StartsWith("windows")) {
     $commandToExecute = "powershell.exe -ExecutionPolicy Unrestricted -Command 'Get-ChildItem C:\\post-generation -Filter *.ps1 | ForEach-Object { & `$_.FullName } '"
-    $customScriptParameters += "--name=CustomScriptExtension"
-    $customScriptParameters += "--publisher=Microsoft.Compute"
-    $customScriptParameters += "--version=1.9"
-    $customScriptParameters += "--settings=`"{\`"commandToExecute\`":\`"\`" }`""
-    $customScriptParameters += "--protected-settings=`"{\`"commandToExecute\`":\`"$commandToExecute\`" }`""
 
+    # workaround to handle different escaping when running in Linux or Windows
+    if ($IsWindows) {
+        az vmss extension set --vmss-name $VmssName --resource-group $ResourceGroupName `
+            --name "CustomScriptExtension" --publisher "Microsoft.Compute" --version "1.9" `
+            --settings '{\"commandToExecute\":\"\"}' `
+            --protected-settings $('{\"commandToExecute\":\"' + $commandToExecute + '\" }')
+    } else {
+        az vmss extension set --vmss-name $VmssName --resource-group $ResourceGroupName `
+            --name "CustomScriptExtension" --publisher "Microsoft.Compute" --version "1.9" `
+            --settings '{"commandToExecute":""}' `
+            --protected-settings $('{"commandToExecute":"' + $commandToExecute + '" }')
+    }
 } else {
     $commandToExecute = "sudo su -c 'find /opt/post-generation -mindepth 1 -maxdepth 1 -type f -name *.sh -exec bash {} \\;'"
-    $customScriptParameters += "--name=CustomScript"
-    $customScriptParameters += "--publisher=Microsoft.Azure.Extensions"
-    $customScriptParameters += "--version=2.0"
-    $customScriptParameters += "--settings=`"{\`"commandToExecute\`":\`"\`" }`""
-    $customScriptParameters += "--protected-settings=`"{\`"commandToExecute\`":\`"$commandToExecute\`" }`""
+
+    if ($IsWindows) {
+        az vmss extension set --vmss-name $VmssName --resource-group $ResourceGroupName `
+            --name "CustomScript" --publisher "Microsoft.Azure.Extensions" --version "2.0" `
+            --settings '{\"commandToExecute\":\"\"}' `
+            --protected-settings $('{\"commandToExecute\":\"' + $commandToExecute + '\" }')
+    } else {
+        az vmss extension set --vmss-name $VmssName --resource-group $ResourceGroupName `
+            --name "CustomScript" --publisher "Microsoft.Azure.Extensions" --version "2.0" `
+            --settings '{"commandToExecute":""}' `
+            --protected-settings $('{"commandToExecute":"' + $commandToExecute + '" }')
+    }
 }
 
-Write-Host "Add custom script extension ..."
-az vmss extension set --vmss-name $VmssName --resource-group $ResourceGroupName $customScriptParameters
 CheckCommandResult

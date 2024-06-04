@@ -61,6 +61,7 @@ jobs:
       inputs:
         azureSubscription: ${{ parameters.azure_service_connection_name }}
         scriptType: 'pscore'
+        powerShellIgnoreLASTEXITCODE: true
         scriptLocation: inlineScript
         inlineScript: |
           $imageName = "${{ parameters.image_type }}-$(Build.BuildId)"
@@ -77,13 +78,9 @@ jobs:
 
             Write-Host "Removing old images ..."
             foreach ($img in $list) {
-              try {
-                az image delete --ids $img
-              } catch {
-                Write-Host "Error deleting image $img"
-              }
+              az image delete --ids $img
             }
-          }
+          }          
 
   - task: AzureCLI@2
     displayName: upgrade VM instances
