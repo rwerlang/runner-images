@@ -1,12 +1,22 @@
 #!/bin/bash -e
 
-# Execute all post-generation scripts
-find /opt/post-generation -mindepth 1 -maxdepth 1 -type f -name *.sh -exec bash {} \;
+# run all post-generation scripts
+# https://github.com/actions/runner-images/blob/main/docs/create-image-and-azure-resources.md#post-generation-scripts
 
+echo "run all post-generation scripts ..."
+find /opt/post-generation -mindepth 1 -maxdepth 1 -type f -name "*.sh" -exec bash {} \;
 
-# Create the agent_env_vars script that will be ran by enableagent.sh during the pipeline agent installation
+echo "succeeded!"
+echo ""
 
-echo "#!/bin/bash" > /etc/profile.d/agent_env_vars.sh
-echo 'log_message "Running agent_env_vars.sh"' >> /etc/profile.d/agent_env_vars.sh
-cat /etc/environment >> /etc/profile.d/agent_env_vars.sh
-chmod +x /etc/profile.d/agent_env_vars.sh
+# get path from etc/environment
+echo "update path variable"
+source /etc/environment
+echo $PATH
+
+# update /etc/sudoers secure_path
+sed -i.bak "/secure_path/d" /etc/sudoers
+echo "Defaults secure_path=$PATH" >> /etc/sudoers
+
+# debug
+cat /etc/sudoers
