@@ -1,21 +1,27 @@
 #!/bin/bash -e
 
 echo "creating AzDevOps account ..."
+# https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/scale-set-agents?view=azure-devops
 # https://vstsagenttools.blob.core.windows.net/tools/ElasticPools/Linux/<script_version>/enableagent.sh
 
-sudo useradd -m AzDevOps
-sudo usermod -a -G docker AzDevOps
-sudo usermod -a -G adm AzDevOps
-sudo usermod -a -G sudo AzDevOps
+# Create our user account if it does not exist already
+if id AzDevOps &>/dev/null; then
+    echo "AzDevOps account already exists"
+else
+    sudo useradd -m AzDevOps
+    sudo usermod -a -G docker AzDevOps
+    sudo usermod -a -G adm AzDevOps
+    sudo usermod -a -G sudo AzDevOps
 
-echo "giving AzDevOps user access to the '/home' directory"
-sudo chmod -R +r /home
-setfacl -Rdm "u:AzDevOps:rwX" /home
-setfacl -Rb /home/AzDevOps
-echo 'AzDevOps ALL=NOPASSWD: ALL' >> /etc/sudoers
+    echo "giving AzDevOps user access to the '/home' directory"
+    sudo chmod -R +r /home
+    setfacl -Rdm "u:AzDevOps:rwX" /home
+    setfacl -Rb /home/AzDevOps
+    echo 'AzDevOps ALL=NOPASSWD: ALL' >> /etc/sudoers
 
-echo "succeeded!"
-echo ""
+    echo "succeeded!"
+    echo ""
+fi
 
 # run all post-generation scripts
 # https://github.com/actions/runner-images/blob/main/docs/create-image-and-azure-resources.md#post-generation-scripts
