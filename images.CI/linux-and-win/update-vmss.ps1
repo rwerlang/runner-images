@@ -51,7 +51,7 @@ if ($ImageType.StartsWith("windows")) {
     } else {
         az vmss extension set --vmss-name $VmssName --resource-group $ResourceGroupName `
             --name "CustomScript" --publisher "Microsoft.Azure.Extensions" --version "2.0" `
-            --settings '{ "fileUris":["https://raw.githubusercontent.com/rwerlang/runner-images/main/images/ubuntu/scripts/helpers/vm-startup.sh\"], "commandToExecute":"sudo su -c ./vm-startup.sh" }'
+            --settings '{ "fileUris":["https://raw.githubusercontent.com/rwerlang/runner-images/main/images/ubuntu/scripts/helpers/vm-startup.sh"], "commandToExecute":"sudo su -c ./vm-startup.sh" }'
     }
 }
 
