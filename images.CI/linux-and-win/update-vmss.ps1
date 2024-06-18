@@ -44,18 +44,14 @@ if ($ImageType.StartsWith("windows")) {
             --protected-settings $('{"commandToExecute":"' + $commandToExecute + '" }')
     }
 } else {
-    $commandToExecute = "sudo su -c 'find /opt/post-generation -mindepth 1 -maxdepth 1 -type f -name *.sh -exec bash {} \\;'"
-
     if ($IsWindows) {
         az vmss extension set --vmss-name $VmssName --resource-group $ResourceGroupName `
             --name "CustomScript" --publisher "Microsoft.Azure.Extensions" --version "2.0" `
-            --settings '{\"commandToExecute\":\"\"}' `
-            --protected-settings $('{\"commandToExecute\":\"' + $commandToExecute + '\" }')
+            --settings '{ \"fileUris\":[\"https://raw.githubusercontent.com/rwerlang/runner-images/main/images/ubuntu/scripts/helpers/vm-startup.sh\"], \"commandToExecute\":\"sudo su -c ./vm-startup.sh \"}'
     } else {
         az vmss extension set --vmss-name $VmssName --resource-group $ResourceGroupName `
             --name "CustomScript" --publisher "Microsoft.Azure.Extensions" --version "2.0" `
-            --settings '{"commandToExecute":""}' `
-            --protected-settings $('{"commandToExecute":"' + $commandToExecute + '" }')
+            --settings '{ "fileUris":["https://raw.githubusercontent.com/rwerlang/runner-images/main/images/ubuntu/scripts/helpers/vm-startup.sh\"], "commandToExecute":"sudo su -c ./vm-startup.sh" }'
     }
 }
 
