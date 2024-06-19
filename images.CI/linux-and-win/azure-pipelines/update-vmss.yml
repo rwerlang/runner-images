@@ -7,7 +7,7 @@ parameters:
   - name: agent_pool
     type: object
     default:
-      name: ubuntu-latest
+      vmImage: ubuntu-latest
 
   - name: vmss_name
     type: string
