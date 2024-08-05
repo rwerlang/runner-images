@@ -79,9 +79,9 @@
         "additional_tools": [
         ],
         "ndk": {
-            "default": "26",
+            "default": "27",
             "versions": [
-                "24", "25", "26"
+                "24", "25", "26", "27"
             ]
         }
     },
@@ -188,11 +188,11 @@
             },
             {
                 "package": "docker-ce-cli",
-                "version": "26.1.0"
+                "version": "26.1.3"
             },
             {
                 "package": "docker-ce",
-                "version": "26.1.0"
+                "version": "26.1.3"
             }
         ],
         "plugins": [
@@ -203,7 +203,7 @@
             },
             {
                 "plugin": "compose",
-                "version": "latest",
+                "version": "2.27.1",
                 "asset": "linux-x86_64"
             }
         ]
